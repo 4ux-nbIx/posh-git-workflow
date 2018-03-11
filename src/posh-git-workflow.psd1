@@ -41,9 +41,7 @@ Author = 'Roman Novitsky'
 Copyright = '(c) 2016 Roman Novitsky. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'posh-git-workflow is a PowerShell module that automates GitHub Flow (https://guides.github.com/introduction/flow/) and similar branching models with a set of cmdlets to sync a fork, create/push a feature branch and submit a pull request. 
-
-It also facilitates teams with longer release cycles with a set of release branch management cmdlets.'
+Description = 'posh-git-workflow is a PowerShell module that automates GitHub Flow (https://guides.github.com/introduction/flow/) and similar branching models with a set of cmdlets to sync a fork, create/push a feature branch and submit a pull request. It also facilitates teams with longer release cycles with a set of release branch management cmdlets.'
 
 # Minimum version of the Windows PowerShell engine required by this module
 # PowerShellVersion = ''
