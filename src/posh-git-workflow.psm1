@@ -502,15 +502,21 @@ function Set-PullRequestUrl {
     Creates or updates local git config section 'workflow' and sets 'pullrequesturl' key value to the specified URL.
     
     .PARAMETER Url
-    submit pull request page URL.
+    Submit pull request page URL.
     
     The URL can be in a form of a template with this placeholders:
     {0} - sourceRef
     {1} - targetRef
     
-    Example:
-    https://my-account.visualstudio.com/_git/my-repo/pullrequestcreate?sourceRef={0}&targetRef={1}&sourceRepositoryId=my-fork-repo-GUID&targetRepositoryId=main-repo-GUID
+    GitHub URL example:
+    https://github.com/<repo-owner-id>/<original-repo-id>/compare/{1}...<my-github-user-id>:{0}
+
+    Visual Studio Online URL example:
+    https://<my-account-id>.visualstudio.com/_git/<my-repo-id>/pullrequestcreate?sourceRef={0}&targetRef={1}&sourceRepositoryId=<my-fork-GUID>&targetRepositoryId=<main-repo-GUID>
     
+    .EXAMPLE
+    Set-PullRequestUrl 'https://github.com/octocat/Spoon-Knife/compare/master...my-github-user-id:master'
+
     .EXAMPLE
     Set-PullRequestUrl 'https://my-account.visualstudio.com/_git/my-repo/pullrequestcreate?sourceRef={0}&targetRef={1}&sourceRepositoryId=my-fork-repo-GUID&targetRepositoryId=main-repo-GUID'
     #>

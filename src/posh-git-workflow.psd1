@@ -3,7 +3,7 @@
     PrivateData = @{
         PSData = @{
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @('git')
+            Tags = @('git', 'PullRequest', 'GitHub', 'VSTS', 'VisualStudioOnline', 'TFS')
 
             # A URL to the license for this module.
             LicenseUri = 'https://github.com/4ux-nbIx/posh-git-workflow/blob/master/LICENSE'
@@ -26,7 +26,7 @@
 RootModule = 'posh-git-workflow.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.0'
+ModuleVersion = '1.0.1'
 
 # ID used to uniquely identify this module
 GUID = '3ff4d4b6-ade9-46f3-a4f2-2ad6f5508388'
@@ -41,7 +41,9 @@ Author = 'Roman Novitsky'
 Copyright = '(c) 2016 Roman Novitsky. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Simplified git flow implementation.'
+Description = 'posh-git-workflow is a PowerShell module that automates GitHub Flow (https://guides.github.com/introduction/flow/) and similar branching models with a set of cmdlets to sync a fork, create/push a feature branch and submit a pull request. 
+
+It also facilitates teams with longer release cycles with a set of release branch management cmdlets.'
 
 # Minimum version of the Windows PowerShell engine required by this module
 # PowerShellVersion = ''
