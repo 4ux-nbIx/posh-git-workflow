@@ -3,7 +3,7 @@
     PrivateData = @{
         PSData = @{
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @('git', 'PullRequest', 'GitHub', 'VSTS', 'VisualStudioOnline', 'TFS')
+            Tags = @('git', 'PullRequest', 'GitHub', 'VSTS', 'VisualStudioOnline', 'TFS', 'VisualStudioTeamServices')
 
             # A URL to the license for this module.
             LicenseUri = 'https://github.com/4ux-nbIx/posh-git-workflow/blob/master/LICENSE'
@@ -16,7 +16,7 @@
 
             # ReleaseNotes of this module - our ReleaseNotes are in
             # the file ReleaseNotes.md
-            ReleaseNotes = 'Initial release'
+            ReleaseNotes = 'Added New-Release and argument completion. Improved Complete-Release.'
 
         } # End of PSData hashtable
 
@@ -26,7 +26,7 @@
 RootModule = 'posh-git-workflow.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0.1'
+ModuleVersion = '1.1.0'
 
 # ID used to uniquely identify this module
 GUID = '3ff4d4b6-ade9-46f3-a4f2-2ad6f5508388'
