@@ -1,6 +1,13 @@
 # TODO: delete branch
 
-[string]$global:GitWorkflow_PullRequestUrlConfigKey = 'workflow.pullrequesturl';
+[PSCustomObject]$global:PoshGitWorkflow = @{
+    PullRequestUrlConfigKey = 'workflow.pullrequesturl';
+    ReleaseNameArgumentCompleter = { GetReleaseBranches | Where {NameStartsWith $_ $args[2]} | ForEach-Object { ToBranchCompletionResult $_} };
+    FeatureNameArgumentCompleter = { GetFeatureBranches | Where {NameStartsWith $_ $args[2]} | ForEach-Object { ToBranchCompletionResult $_} };
+    ReleaseFixNameArgumentCompleter = { GetReleaseFixBranches | Where {NameStartsWith $_ $args[2]} | ForEach-Object { ToBranchCompletionResult $_} };
+    LocalFeatureNameArgumentCompleter = { GetFeatureBranches | Where {$_.IsLocal -and (NameStartsWith $_ $args[2])} | ForEach-Object { ToBranchCompletionResult $_} };
+    LocalReleaseFixNameArgumentCompleter = { GetReleaseFixBranches | Where {$_.IsLocal -and (NameStartsWith $_ $args[2])} | ForEach-Object { ToBranchCompletionResult $_} };
+};
 
 function Sync-Fork {
     <#
@@ -138,6 +145,51 @@ function New-Feature {
 }
 
 
+function New-Release {
+    <#
+    .SYNOPSIS
+    Creates new release branch.
+    
+    .DESCRIPTION
+    Syncs fork, creates branch with the specified name prefixed with 'release/' on latest master, pushes it to upstream and removes local ref.
+    
+    .PARAMETER Name
+    Branch name without 'release/' prefix.
+    
+    .EXAMPLE
+    New-Release v1.1
+
+    .LINK
+    Sync-Fork
+
+    .LINK
+    New-ReleaseFix
+
+    .LINK
+    New-Feature
+    #>
+    [CmdletBinding(SupportsShouldProcess=$false)]
+    param(
+        [Parameter(Mandatory=$true, 
+                   Position=0, 
+                   HelpMessage="Release name (version)")]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $Name
+    )
+
+    trap {
+        return;
+    }
+
+    SyncFork
+    
+    ExecuteGitCommand 'git checkout' "-B release/$Name" '--progress'
+    ExecuteGitCommand 'git push' '--set-upstream upstream';
+    ExecuteGitCommand 'git checkout' 'master' '--progress'
+    ExecuteGitCommand 'git branch' "-D release/$Name";
+}
+
 
 function New-ReleaseFix {
     <#
@@ -171,6 +223,7 @@ function New-ReleaseFix {
                    Position=0, 
                    HelpMessage="Branch name")]
         [ValidateNotNullOrEmpty()]
+        [ArgumentCompleter({ & $PoshGitWorkflow.ReleaseNameArgumentCompleter })]
         [string]
         $Name,
         [Parameter(Mandatory=$false, 
@@ -232,13 +285,6 @@ function New-ReleaseFix {
     ExecuteGitCommand 'git checkout' "-b release/$ReleaseName/$Name --no-track $releaseRefName" '--progress'
 }
 
-Register-ArgumentCompleter -CommandName New-ReleaseFix -ParameterName ReleaseName -ScriptBlock {
-    param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameter)
-
-    GetReleaseBranches | Where {NameStartsWith $_ $wordToComplete} | ForEach-Object { ToBranchCompletionResult $_}
-}
-
-
 function Push-Feature {
     <#
     .SYNOPSIS
@@ -263,6 +309,7 @@ function Push-Feature {
                    ParameterSetName="Name",
                    HelpMessage="Branch name")]
         [ValidateNotNullOrEmpty()]
+        [ArgumentCompleter({ & $PoshGitWorkflow.LocalFeatureNameArgumentCompleter })]
         [string]
         $Name
     )
@@ -273,12 +320,6 @@ function Push-Feature {
 
     $branch = GetFeatureBranches | Where {$_.IsLocal -and (HasNameOrCurrent $_ $Name)};
     PushBranch $branch;
-}
-
-Register-ArgumentCompleter -CommandName Push-Feature -ParameterName Name -ScriptBlock {
-    param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameter)
-
-    GetFeatureBranches | Where {$_.IsLocal -and (NameStartsWith $_ $wordToComplete)} | ForEach-Object { ToBranchCompletionResult $_}
 }
 
 function Push-ReleaseFix {
@@ -305,6 +346,7 @@ function Push-ReleaseFix {
                    ParameterSetName="Name",
                    HelpMessage="Branch name")]
         [ValidateNotNullOrEmpty()]
+        [ArgumentCompleter({ & $PoshGitWorkflow.LocalReleaseFixNameArgumentCompleter })]
         [string]
         $Name
     )
@@ -315,12 +357,6 @@ function Push-ReleaseFix {
 
     $branch = GetReleaseFixBranches | Where {$_.IsLocal -and (HasNameOrCurrent $_ $Name)};
     PushBranch $branch;
-}
-
-Register-ArgumentCompleter -CommandName Push-ReleaseFix -ParameterName Name -ScriptBlock {
-    param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameter)
-
-    GetReleaseFixBranches | Where {$_.IsLocal -and (NameStartsWith $_ $wordToComplete)} | ForEach-Object { ToBranchCompletionResult $_}
 }
 
 function Complete-Feature {
@@ -350,6 +386,7 @@ function Complete-Feature {
                    ParameterSetName="Name",
                    HelpMessage="Branch name")]
         [ValidateNotNullOrEmpty()]
+        [ArgumentCompleter({ & $PoshGitWorkflow.FeatureNameArgumentCompleter })]
         [string]
         $Name
     )
@@ -362,12 +399,6 @@ function Complete-Feature {
     $branch = GetFeatureBranches | Where {HasNameOrCurrent $_ $Name};
     PushBranch $branch;
     SubmitPullRequest $branch;    
-}
-
-Register-ArgumentCompleter -CommandName Complete-Feature -ParameterName Name -ScriptBlock {
-    param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameter)
-
-    GetFeatureBranches | Where {NameStartsWith $_ $wordToComplete} | ForEach-Object { ToBranchCompletionResult $_}
 }
 
 function Complete-ReleaseFix {
@@ -397,6 +428,7 @@ function Complete-ReleaseFix {
                    ParameterSetName="Name",
                    HelpMessage="Branch name")]
         [ValidateNotNullOrEmpty()]
+        [ArgumentCompleter({ & $PoshGitWorkflow.ReleaseFixNameArgumentCompleter })]
         [string]
         $Name
     )
@@ -409,12 +441,6 @@ function Complete-ReleaseFix {
     $branch = GetReleaseFixBranches | Where {HasNameOrCurrent $_ $Name};
     PushBranch $branch;
     SubmitPullRequest $branch;    
-}
-
-Register-ArgumentCompleter -CommandName Complete-ReleaseFix -ParameterName Name -ScriptBlock {
-    param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameter)
-
-    GetReleaseFixBranches | Where {NameStartsWith $_ $wordToComplete} | ForEach-Object { ToBranchCompletionResult $_}
 }
 
 function Complete-Release {
@@ -443,10 +469,11 @@ function Complete-Release {
                    Position=0, 
                    HelpMessage="Branch name")]
         [ValidateNotNullOrEmpty()]
+        [ArgumentCompleter({ & $PoshGitWorkflow.ReleaseNameArgumentCompleter })]
         [string]
         $Name,
         [Parameter(Mandatory=$false, 
-                   Position=0, 
+                   Position=1, 
                    HelpMessage="Tag message")]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -457,14 +484,22 @@ function Complete-Release {
         return;
     }
 
-    # check is dirty
-
     Sync-Fork
 
-    $branch = GetReleaseBranches | Where {$_.IsLocal -and (HasNameOrCurrent $_ $Name)};
+    $branches = @(GetReleaseBranches);
+    $branch = $branches | Where {HasNameOrCurrent $_ $Name};
+
+    if ([System.String]::IsNullOrWhitespace($Name) -and $branch -eq $null -and $branches.Length -eq 1) {
+        $branch = $branches[0];
+    }
 
     if ($branch -eq $null) {
-        Write-Error "Branch 'release/$Name' not found";
+        if ([System.String]::IsNullOrWhitespace($Name)) {
+            Write-Error "No release branches found";
+        }
+        else {
+            Write-Error "Branch 'release/$Name' not found";
+        }
         return;
     }
 
@@ -472,10 +507,9 @@ function Complete-Release {
 
     $commitId = ExecuteGitCommand 'git rev-parse' $branch.ShortRefName;
 
-    ExecuteGitCommand 'git merge' "--no-ff -m `"Merge 'release/$Name'`" $commitId";
-    ExecuteGitCommand 'git push' '--set-upstream upstream/master';
-    ExecuteGitCommand 'git branch' '--set-upstream-to origin/master'
-    ExecuteGitCommand 'git push' 'upstream --delete release/$Name'
+    if ($branch.IsLocal) {
+        ExecuteGitCommand 'git branch' "-D release/$Name";
+    }
 
     $messageParameter = '';
     if (-not [System.String]::IsNullOrWhitespace($Message)) {
@@ -483,15 +517,18 @@ function Complete-Release {
     }
 
     ExecuteGitCommand 'git tag' "$messageParameter release/$Name $commitId"
+
+    ExecuteGitCommand 'git merge' "--no-ff -m `"Merge 'release/$Name'`" $commitId";
+
+    if (HasMergeConflicts) {
+        return;
+    }
+
+    ExecuteGitCommand 'git push' "upstream --delete release/$Name";
+    ExecuteGitCommand 'git push' '--set-upstream upstream';
+    ExecuteGitCommand 'git branch' '--set-upstream-to origin'
     ExecuteGitCommand 'git push' "upstream --tags"
 }
-
-Register-ArgumentCompleter -CommandName Complete-Release -ParameterName Name -ScriptBlock {
-    param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameter)
-
-    GetReleaseBranches | Where {NameStartsWith $_ $wordToComplete} | ForEach-Object { ToBranchCompletionResult $_}
-}
-
 
 function Set-PullRequestUrl {
     <#
@@ -533,14 +570,14 @@ function Set-PullRequestUrl {
         return;
     }
 
-    SetGitConfigValue $GitWorkflow_PullRequestUrlConfigKey $Url;
+    SetGitConfigValue $PoshGitWorkflow.PullRequestUrlConfigKey $Url;
 }
 
 function SubmitPullRequest {
     [CmdletBinding()]
     param ($branch)
     
-    $pullRequestUrl = GetGitConfigValue $GitWorkflow_PullRequestUrlConfigKey;
+    $pullRequestUrl = GetGitConfigValue $PoshGitWorkflow.PullRequestUrlConfigKey;
 
     if ([System.String]::IsNullOrWhitespace($pullRequestUrl)) {
         return;
@@ -685,11 +722,11 @@ function HasMergeConflicts {
 function HasNameOrCurrent {
     param($branch, $name)
 
-    if ([System.String]::IsNullOrEmpty($Name) -and $branch.IsHead) {
+    if ([System.String]::IsNullOrEmpty($name) -and $branch.IsHead) {
         return $branch
     }
 
-    if ($branch.Name -eq $Name) {
+    if ($branch.Name -eq $name) {
         return $branch;
     }
 

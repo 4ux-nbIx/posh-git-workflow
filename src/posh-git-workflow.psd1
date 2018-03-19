@@ -83,16 +83,17 @@ Description = 'posh-git-workflow is a PowerShell module that automates GitHub Fl
 # exported.  This improves performance of PowerShell when discovering the commands in
 # module.
 FunctionsToExport = @(
-    'Sync-Fork', 
-    'New-Feature', 
-    'New-ReleaseFix', 
-    'Complete-Feature', 
-    'Complete-ReleaseFix', 
-    'Complete-Release', 
-    'Push-Feature', 
-    'Push-ReleaseFix', 
-    'Set-PullRequestUrl', 
-    'Get-Features', 
+    'Sync-Fork',
+    'New-Feature',
+    'New-Release',
+    'New-ReleaseFix',
+    'Complete-Feature',
+    'Complete-ReleaseFix',
+    'Complete-Release',
+    'Push-Feature',
+    'Push-ReleaseFix',
+    'Set-PullRequestUrl',
+    'Get-Features',
     'Get-Releases',
     'Get-ReleaseFixes')
 
