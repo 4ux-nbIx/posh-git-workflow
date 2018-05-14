@@ -9,7 +9,7 @@
     LocalReleaseFixNameArgumentCompleter = { GetReleaseFixBranches | Where {$_.IsLocal -and (NameStartsWith $_ $args[2])} | ForEach-Object { ToBranchCompletionResult $_} };
 };
 
-function Sync-Fork {
+function Sync-GitFork {
     <#
     .SYNOPSIS
     Syncs fork with upstream (original) repository.
@@ -27,16 +27,16 @@ function Sync-Fork {
     SyncFork
 }
 
-function Get-Features {
+function Get-GitFeature {
     <#
     .SYNOPSIS
     Returns feature branches.
 
     .LINK
-    Get-Releases
+    Get-GitRelease
 
     .LINK
-    Get-ReleasesFixes
+    Get-GitReleaseFix
     #>
     [CmdletBinding()]
     param ()
@@ -48,16 +48,16 @@ function Get-Features {
     GetFeatureBranches | Select Name,ShortRefName,RefName,IsHead;
 }
 
-function Get-Releases {
+function Get-GitRelease {
     <#
     .SYNOPSIS
     Returns release branches.
 
     .LINK
-    Get-ReleasesFixes
+    Get-GitReleaseFix
 
     .LINK
-    Get-Features
+    Get-GitFeature
     #>
     [CmdletBinding()]
     param ()
@@ -69,16 +69,16 @@ function Get-Releases {
     GetReleaseBranches | Select Name,ShortRefName,RefName,IsHead;
 }
 
-function Get-ReleaseFixes {
+function Get-GitReleaseFix {
     <#
     .SYNOPSIS
     Returns release fix branches.
 
     .LINK
-    Get-Releases
+    Get-GitRelease
 
     .LINK
-    Get-Features
+    Get-GitFeature
     #>
     [CmdletBinding()]
     param ()
@@ -101,7 +101,7 @@ function Get-Hotfixes {
     GethotfixBranches | Select Name,ShortRefName,RefName,IsHead;
 }
 
-function New-Feature {
+function New-GitFeature {
     <#
     .SYNOPSIS
     Creates new feature branch.
@@ -113,16 +113,16 @@ function New-Feature {
     Branch name without 'feature/' prefix.
     
     .EXAMPLE
-    New-Feature cool-stuff
+    New-GitFeature cool-stuff
 
     .LINK
-    Sync-Fork
+    Sync-GitFork
 
     .LINK
-    New-Release
+    New-GitRelease
 
     .LINK
-    New-ReleaseFix
+    New-GitReleaseFix
     #>
     [CmdletBinding(SupportsShouldProcess=$false)]
     param(
@@ -145,7 +145,7 @@ function New-Feature {
 }
 
 
-function New-Release {
+function New-GitRelease {
     <#
     .SYNOPSIS
     Creates new release branch.
@@ -157,16 +157,16 @@ function New-Release {
     Branch name without 'release/' prefix.
     
     .EXAMPLE
-    New-Release v1.1
+    New-GitRelease v1.1
 
     .LINK
-    Sync-Fork
+    Sync-GitFork
 
     .LINK
-    New-ReleaseFix
+    New-GitReleaseFix
 
     .LINK
-    New-Feature
+    New-GitFeature
     #>
     [CmdletBinding(SupportsShouldProcess=$false)]
     param(
@@ -191,7 +191,7 @@ function New-Release {
 }
 
 
-function New-ReleaseFix {
+function New-GitReleaseFix {
     <#
     .SYNOPSIS
     Creates new release fix branch.
@@ -206,16 +206,16 @@ function New-ReleaseFix {
     Release branch name without release prefix
     
     .EXAMPLE
-    New-ReleaseFix bug-fix
+    New-GitReleaseFix bug-fix
 
     .LINK
-    Sync-Fork
+    Sync-GitFork
 
     .LINK
-    New-Feature
+    New-GitFeature
 
     .LINK
-    New-Release
+    New-GitRelease
     #>
     [CmdletBinding(SupportsShouldProcess=$false)]
     param(
@@ -285,7 +285,7 @@ function New-ReleaseFix {
     ExecuteGitCommand 'git checkout' "-b release/$ReleaseName/$Name --no-track $releaseRefName" '--progress'
 }
 
-function Push-Feature {
+function Push-GitFeature {
     <#
     .SYNOPSIS
     Pushes feature branch to origin.
@@ -297,10 +297,10 @@ function Push-Feature {
     Branch name without feature prefix.
 
     .EXAMPLE
-    Push-Feature cool-stuff
+    Push-GitFeature cool-stuff
 
     .LINK
-    Push-ReleaseFix
+    Push-GitReleaseFix
     #>
     [CmdletBinding(SupportsShouldProcess=$false)]
     param(
@@ -322,7 +322,7 @@ function Push-Feature {
     PushBranch $branch;
 }
 
-function Push-ReleaseFix {
+function Push-GitReleaseFix {
     <#
     .SYNOPSIS
     Pushes release fix branch to origin.
@@ -334,10 +334,10 @@ function Push-ReleaseFix {
     Branch name without release branch prefix.
 
     .EXAMPLE
-    Push-ReleaseFix bug-fix
+    Push-GitReleaseFix bug-fix
 
     .LINK
-    Push-Feature
+    Push-GitFeature
     #>
     [CmdletBinding(SupportsShouldProcess=$false)]
     param(
@@ -359,7 +359,7 @@ function Push-ReleaseFix {
     PushBranch $branch;
 }
 
-function Complete-Feature {
+function Complete-GitFeature {
     <#
     .SYNOPSIS
     Pushes feature branch and submits pull request.
@@ -371,13 +371,13 @@ function Complete-Feature {
     Branch name without feature prefix.
 
     .EXAMPLE
-    Complete-Feature cool-stuff
+    Complete-GitFeature cool-stuff
 
     .LINK
-    Set-PullRequestUrl
+    Set-GitPullRequestUrl
 
     .LINK
-    Complete-ReleaseFix
+    Complete-GitReleaseFix
     #>
     [CmdletBinding(SupportsShouldProcess=$false)]
     param(
@@ -401,7 +401,7 @@ function Complete-Feature {
     SubmitPullRequest $branch;    
 }
 
-function Complete-ReleaseFix {
+function Complete-GitReleaseFix {
     <#
     .SYNOPSIS
     Pushes release fix branch and submits pull request.
@@ -413,13 +413,13 @@ function Complete-ReleaseFix {
     Branch name without release branch prefix.
 
     .EXAMPLE
-    Complete-ReleaseFix bug-fix
+    Complete-GitReleaseFix bug-fix
 
     .LINK
-    Set-PullRequestUrl
+    Set-GitPullRequestUrl
 
     .LINK
-    Complete-Feature
+    Complete-GitFeature
     #>
     [CmdletBinding(SupportsShouldProcess=$false)]
     param(
@@ -443,7 +443,7 @@ function Complete-ReleaseFix {
     SubmitPullRequest $branch;    
 }
 
-function Complete-Release {
+function Complete-GitRelease {
     <#
     .SYNOPSIS
     Merges release branch to master.
@@ -458,10 +458,10 @@ function Complete-Release {
     Release tag message.
 
     .EXAMPLE
-    Complete-Release v1.1 -Message 'Awesome release'
+    Complete-GitRelease v1.1 -Message 'Awesome release'
 
     .LINK
-    Complete-ReleaseFix
+    Complete-GitReleaseFix
     #>
     [CmdletBinding(SupportsShouldProcess=$false)]
     param(
@@ -484,7 +484,7 @@ function Complete-Release {
         return;
     }
 
-    Sync-Fork
+    SyncFork
 
     $branches = @(GetReleaseBranches);
     $branch = $branches | Where {HasNameOrCurrent $_ $Name};
@@ -516,21 +516,20 @@ function Complete-Release {
         $messageParameter = "--message='$Message'";
     }
 
-    ExecuteGitCommand 'git tag' "$messageParameter release/$Name $commitId"
-
     ExecuteGitCommand 'git merge' "--no-ff -m `"Merge 'release/$Name'`" $commitId";
 
     if (HasMergeConflicts) {
         return;
     }
 
+    ExecuteGitCommand 'git tag' "$messageParameter release/$Name $commitId"
     ExecuteGitCommand 'git push' "upstream --delete release/$Name";
     ExecuteGitCommand 'git push' '--set-upstream upstream';
     ExecuteGitCommand 'git branch' '--set-upstream-to origin'
     ExecuteGitCommand 'git push' "upstream --tags"
 }
 
-function Set-PullRequestUrl {
+function Set-GitPullRequestUrl {
     <#
     .SYNOPSIS
     Sets submit pull request page URL in local git config.
@@ -552,10 +551,10 @@ function Set-PullRequestUrl {
     https://<my-account-id>.visualstudio.com/_git/<my-repo-id>/pullrequestcreate?sourceRef={0}&targetRef={1}&sourceRepositoryId=<my-fork-GUID>&targetRepositoryId=<main-repo-GUID>
     
     .EXAMPLE
-    Set-PullRequestUrl 'https://github.com/octocat/Spoon-Knife/compare/master...my-github-user-id:master'
+    Set-GitPullRequestUrl 'https://github.com/octocat/Spoon-Knife/compare/master...my-github-user-id:master'
 
     .EXAMPLE
-    Set-PullRequestUrl 'https://my-account.visualstudio.com/_git/my-repo/pullrequestcreate?sourceRef={0}&targetRef={1}&sourceRepositoryId=my-fork-repo-GUID&targetRepositoryId=main-repo-GUID'
+    Set-GitPullRequestUrl 'https://my-account.visualstudio.com/_git/my-repo/pullrequestcreate?sourceRef={0}&targetRef={1}&sourceRepositoryId=my-fork-repo-GUID&targetRepositoryId=main-repo-GUID'
     #>
     [CmdletBinding()]
     param (

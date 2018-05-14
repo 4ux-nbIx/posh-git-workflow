@@ -16,7 +16,7 @@
 
             # ReleaseNotes of this module - our ReleaseNotes are in
             # the file ReleaseNotes.md
-            ReleaseNotes = 'Added New-Release and argument completion. Improved Complete-Release.'
+            ReleaseNotes = 'Added argument completion and New-Release. Improved Complete-Release. Added Git prefix to all functions.'
 
         } # End of PSData hashtable
 
@@ -26,7 +26,7 @@
 RootModule = 'posh-git-workflow.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.0'
+ModuleVersion = '1.2.0'
 
 # ID used to uniquely identify this module
 GUID = '3ff4d4b6-ade9-46f3-a4f2-2ad6f5508388'
@@ -83,19 +83,19 @@ Description = 'posh-git-workflow is a PowerShell module that automates GitHub Fl
 # exported.  This improves performance of PowerShell when discovering the commands in
 # module.
 FunctionsToExport = @(
-    'Sync-Fork',
-    'New-Feature',
-    'New-Release',
-    'New-ReleaseFix',
-    'Complete-Feature',
-    'Complete-ReleaseFix',
-    'Complete-Release',
-    'Push-Feature',
-    'Push-ReleaseFix',
-    'Set-PullRequestUrl',
-    'Get-Features',
-    'Get-Releases',
-    'Get-ReleaseFixes')
+    'Sync-GitFork',
+    'New-GitFeature',
+    'New-GitRelease',
+    'New-GitReleaseFix',
+    'Complete-GitFeature',
+    'Complete-GitReleaseFix',
+    'Complete-GitRelease',
+    'Push-GitFeature',
+    'Push-GitReleaseFix',
+    'Set-GitPullRequestUrl',
+    'Get-GitFeature',
+    'Get-GitRelease',
+    'Get-GitReleaseFix')
 
 # Cmdlets to export from this module
 # CmdletsToExport = '*'
@@ -119,7 +119,7 @@ FunctionsToExport = @(
 # HelpInfoURI = ''
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-DefaultCommandPrefix = 'Git'
+# DefaultCommandPrefix = ''
 
 }
 
