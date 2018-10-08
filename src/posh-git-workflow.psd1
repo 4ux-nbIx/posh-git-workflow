@@ -3,7 +3,7 @@
     PrivateData = @{
         PSData = @{
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags = @('git', 'PullRequest', 'GitHub', 'VSTS', 'VisualStudioOnline', 'TFS', 'VisualStudioTeamServices')
+            Tags = @('git', 'PullRequest', 'GitHub', 'VSTS', 'VisualStudioOnline', 'AzureDevOps', 'VisualStudioTeamServices')
 
             # A URL to the license for this module.
             LicenseUri = 'https://github.com/4ux-nbIx/posh-git-workflow/blob/master/LICENSE'
@@ -16,7 +16,7 @@
 
             # ReleaseNotes of this module - our ReleaseNotes are in
             # the file ReleaseNotes.md
-            ReleaseNotes = 'Added argument completion and New-Release. Improved Complete-Release. Added Git prefix to all functions.'
+            ReleaseNotes = 'Added Git prefix to all commands. Replaced Sync-GitFork progress indicator with git commands log.'
 
         } # End of PSData hashtable
 
