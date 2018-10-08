@@ -603,9 +603,6 @@ function SyncFork {
     [CmdletBinding(SupportsShouldProcess=$false)]
     Param()
 
-    $progress = 0;
-    $progressStep = 100 / 8;
-
     if (HasMergeConflicts) {
         throw 'Merge conflicts detected.';
     }
@@ -613,46 +610,25 @@ function SyncFork {
     $popStash = $false;
 
     if (IsDirty) {
-        Write-Progress -Activity 'Syncing' -Status "Stashing changes..." -PercentComplete $progress
         ExecuteGitCommand 'git stash save --include-untracked';
         $popStash = $true;        
     }
 
-    $progress += $progressStep;
-    Write-Progress -Activity 'Syncing' -Status "Fetching latest changes from upstream..." -PercentComplete $progress
     ExecuteGitCommand 'git fetch --prune' 'upstream' '--progress --verbose'
-
-    $progress += $progressStep;
-    Write-Progress -Activity 'Syncing' -Status "Checkout master" -PercentComplete $progress
     ExecuteGitCommand 'git checkout' 'master' '--progress'
-
-    $progress += $progressStep;
-    Write-Progress -Activity 'Syncing' -Status "Rebasing master onto upstream/master" -PercentComplete $progress
     ExecuteGitCommand 'git merge --ff-only' 'upstream/master' '--verbose'
-
-    $progress += $progressStep;
-    Write-Progress -Activity 'Syncing' -Status "Pushing master" -PercentComplete $progress
     ExecuteGitCommand 'git push' 'origin master' '--progress --verbose'
 
-    $progress += $progressStep;
-    Write-Progress -Activity 'Syncing' -Status "Cleaning up stale origin branches" -PercentComplete $progress
     PruneRemoteBranches 'origin'
-
-    $progress += $progressStep;
-    Write-Progress -Activity 'Syncing' -Status "Cleaning up stale upstream branches" -PercentComplete $progress
     PruneRemoteBranches 'upstream'
 
     if ($popStash) {
-        $progress += $progressStep;
-        Write-Progress -Activity 'Syncing' -Status "Restoring stashed changes..." -PercentComplete $progress
         ExecuteGitCommand 'git stash pop';
     }
 
     if (HasMergeConflicts) {
         throw 'Merge conflicts detected.';
     }
-
-    Write-Progress -Activity 'Syncing' -Completed
 }
 
 function PruneRemoteBranches {
@@ -910,10 +886,7 @@ function ExecuteGitCommand {
 
     $Command = $Command + " " + $Parameters;
 
-    if ($VerbosePreference -ne 'SilentlyContinue') {
-        Write-Verbose $Command
-    }
-
+    Write-Host -ForegroundColor Yellow $Command
     iex $Command
 
     if ($LASTEXITCODE -ne 0) {
